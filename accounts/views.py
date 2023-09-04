@@ -182,8 +182,8 @@ def create_account(request):
             activation_link = f"http://127.0.0.1:5500/accounts/activate-account/{temp_account.id}"
             send_mail(
                 'Activate your account',
-                f'Cliquer sur ce lien: {activation_link}. '
-                f'Code d\'activation: {activation_code}.',
+                f'Cliquer sur ce lien: ''. '
+                f'Code d\'activation pour valider votre inscription: {activation_code}.',
                 'mamerane1003@gmail.com',
                 [temp_account.email],
                 fail_silently=False,
@@ -375,7 +375,7 @@ def password_reset_request(request):
         return Response({"detail": "E-mail non trouvé."}, status=status.HTTP_404_NOT_FOUND)
 
     token = PasswordResetToken.objects.create(user=user)
-    reset_url = f"{request.scheme}://{request.get_host()}/accounts/reset-password/{token.token}/"
+    reset_url = f"{request.scheme}://localhost:3000/accounts/reset-password/{token.token}/"
 
     send_mail(
         'Réinitialisation du mot de passe',
