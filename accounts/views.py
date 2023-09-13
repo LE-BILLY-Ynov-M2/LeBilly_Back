@@ -180,7 +180,7 @@ def create_account(request):
 
             temp_account.save()
 
-            activate_link = f"http://127.0.0.1:7700/accounts/activate-account/{temp_account.id}"
+            activate_link = f"http://127.0.0.1:3000/accounts/activate-account/{temp_account.id}"
             send_mail(
                 'Activate your account',
                 f'Cliquer sur ce lien: {activate_link}. '
@@ -254,7 +254,8 @@ def update_account(request, user_id):
         setattr(user, field, value)
     user.save()
 
-    return Response({'message': 'Utilisateur mis à jour avec succès'}, status=status.HTTP_200_OK)
+    return Response({'message': 'Utilisateur mis à jour avec succès',
+                     "user_id": user.id}, status=status.HTTP_200_OK)
 
 
 class AccountListView(APIView):
@@ -269,7 +270,44 @@ class EventsListView(APIView):
         print("event",events)
         serializer = EventsSerializer(events, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
+# def delete_user(request, user_id):
+#     try:
+#         # Rechercher l'utilisateur par son ID
+#         user = Account.objects.get(pk=user_id)
+#         user.delete()  # Supprimer l'utilisateur
+#         return JsonResponse({"message": "Utilisateur supprimé avec succès."})
+#     except Account.DoesNotExist:
+#         return JsonResponse({"error": "L'utilisateur n'existe pas."}, status=404)
+#     except Exception as e:
+#         return JsonResponse({"error": str(e)}, status=500)
+
+# class DeleteUserView(APIView):
+#     def post(self, request):
+#         try:
+#             user_id = request.data.get('user_id') 
+
+#             user = Account.objects.get(pk=user_id)
+#             return Response({"message": "Utilisateur supprimé avec succès."}, status=status.HTTP_204_NO_CONTENT)
+#         except Account.DoesNotExist:
+#             return Response({"detail": "L'utilisateur n'existe pas."}, status=status.HTTP_404_NOT_FOUND)
+#         except Exception as e:
+#             return Response({"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class DeleteUserView(APIView):
+    def delete(self, request, id):
+        try:
+            user = Account.objects.get(pk=id)            
+            user.delete()
+            return Response({"message": "Utilisateur supprimé avec succès.",
+                             "user_id": user.id},
+                            status=status.HTTP_204_NO_CONTENT)
+        except Account.DoesNotExist:
+            return Response({"detail": "L'utilisateur n'existe pas."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 @api_view(['POST'])
 def reserve_event(request):
     serializer = ReserveEventSerializer(data=request.data)

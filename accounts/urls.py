@@ -4,6 +4,7 @@ from . import views
 from rest_framework.schemas import get_schema_view
 from .views import AccountListView
 from .views import EventsListView
+from .views import DeleteUserView
 from .views import upload_photo_user, delete_photo_user,get_all_photos
 #schema_view = get_swagger_view(title='Pastebin API')
 
@@ -13,6 +14,7 @@ urlpatterns = [
     path('login/', views.login_view, name='connect-account'),
     path('password-reset-request/', views.password_reset_request, name='password_reset_request'),
     path('reset-password/<uuid:token>/', views.password_reset, name='password_reset'),
+    path('delete/<int:user_id>/', DeleteUserView.as_view(), name='delete_user'),
     path('update/<int:account_id>/', views.update_account, name='update_account'),
     path('activate-account/<int:temp_account_id>/', views.activate_account, name='activate_account'),
     path('accounts/', AccountListView.as_view(), name='account-list'),
