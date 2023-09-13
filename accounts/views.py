@@ -271,6 +271,17 @@ class EventsListView(APIView):
         serializer = EventsSerializer(events, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class GetUserView(APIView):
+    def get(self, request, id):
+        try:
+            user = Account.objects.get(pk=id)
+            serializer = AccountSerializer(user)  # Utilisez votre sérialiseur pour transformer l'objet utilisateur en JSON
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Account.DoesNotExist:
+            return Response({"detail": "L'utilisateur n'existe pas."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 # def delete_user(request, user_id):
 #     try:
 #         # Rechercher l'utilisateur par son ID
