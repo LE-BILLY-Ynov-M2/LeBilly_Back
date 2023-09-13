@@ -37,6 +37,7 @@ from .serializers import AccountSerializer,EventsSerializer
 from rest_framework import serializers
 import random
 from rest_framework.views import APIView
+from django.contrib.auth import authenticate
 import cloudinary.uploader
 from django.http import JsonResponse
 import cloudinary.api
@@ -413,6 +414,22 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError("Vous devez fournir un token, un user_id ou un username et password.")
         return data
 
+# @api_view(['POST'])
+# @permission_classes([AllowAny])
+# def login_view(request):
+#     email = request.data.get('email')
+#     password = request.data.get('password')
+
+#     if not email or not password:
+#         return Response({"detail": "Les champs 'email' et 'password' sont obligatoires."}, status=status.HTTP_400_BAD_REQUEST)
+
+#     try:
+#         user = Account.objects.get(email=email, password=password)
+#         return Response({'message': "Utilisateur connecté avec succès."}, status=status.HTTP_200_OK)
+
+#     except Account.DoesNotExist:
+#         return Response({"detail": "Combinaison email/mot de passe incorrecte."}, status=status.HTTP_404_NOT_FOUND)
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_view(request):
@@ -422,13 +439,17 @@ def login_view(request):
     if not email or not password:
         return Response({"detail": "Les champs 'email' et 'password' sont obligatoires."}, status=status.HTTP_400_BAD_REQUEST)
 
-    try:
-        user = Account.objects.get(email=email, password=password)
-        return Response({'message': "Utilisateur connecté avec succès."}, status=status.HTTP_200_OK)
+    user = authenticate(request, username=email, password=password)
 
-    except Account.DoesNotExist:
-        return Response({"detail": "Combinaison email/mot de passe incorrecte."}, status=status.HTTP_404_NOT_FOUND)
-
+    if user is not None:
+        return Response({
+            "message": "Utilisateur connecté avec succès.",
+            "user_id": user.id,
+            "token": user.token,
+            "admin": user.is_active
+        }, status=status.HTTP_200_OK)
+    else:
+        return Response({"detail": "Combinaison email/mot de passe incorrecte."}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 # @login_required
