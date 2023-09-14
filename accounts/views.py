@@ -330,11 +330,11 @@ def reserve_event(request):
 
 def upload_photo_user(request):
     if request.method == "POST":
-        uploaded_file = request.FILES.get('file')  # assuming 'file' is the key in the multipart request
+        uploaded_file = request.FILES.get('file')
         if uploaded_file:
             result = cloudinary.uploader.upload(
                 uploaded_file,
-                folder="users"
+                folder="photos"
             )
             if result:
                 return JsonResponse(result, status=200)
@@ -356,7 +356,7 @@ def delete_photo_user(request, user_id):
 
 def get_all_photos(request):
     if request.method == "GET":
-        results = cloudinary.api.resources(type="upload", prefix="users/")
+        results = cloudinary.api.resources(type="upload", prefix="photos/")
         return JsonResponse(results, safe=False)
     return JsonResponse({"error": "Invalid request"}, status=400)
 
