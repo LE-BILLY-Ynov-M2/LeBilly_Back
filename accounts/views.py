@@ -180,7 +180,7 @@ def create_account(request):
 
             temp_account.save()
 
-            activate_link = f"http://127.0.0.1:3000/accounts/activate-account/{temp_account.id}"
+            activate_link = f"http://127.0.0.1:3000/verifCode?{temp_account.id}"
             send_mail(
                 'Activate your account',
                 f'Cliquer sur ce lien: {activate_link}. '
@@ -241,10 +241,10 @@ def verify_token(request, token):
 
 
 @api_view(['PUT'])
-@permission_classes([IsAuthenticated])
-def update_account(request, user_id):
+@permission_classes([AllowAny])
+def update_account(request, id):
     try:
-        user = Account.objects.get(pk=user_id)
+        user = Account.objects.get(pk=id)
         print("user",user)
     except Account.DoesNotExist:
         return Response({"detail": "Utilisateur non trouvé."}, status=status.HTTP_404_NOT_FOUND)
@@ -255,7 +255,7 @@ def update_account(request, user_id):
     user.save()
 
     return Response({'message': 'Utilisateur mis à jour avec succès',
-                     "user_id": user.id}, status=status.HTTP_200_OK)
+                     "user_id": user.id,"token": user.token}, status=status.HTTP_200_OK)
 
 
 class AccountListView(APIView):
@@ -479,6 +479,28 @@ class LoginSerializer(serializers.Serializer):
 #     except Account.DoesNotExist:
 #         return Response({"detail": "Combinaison email/mot de passe incorrecte."}, status=status.HTTP_404_NOT_FOUND)
 
+# @permission_classes([AllowAny]) 
+# @api_view(['POST'])
+# def login_view(request):
+#     email = request.data.get('email')
+#     password = request.data.get('password')
+
+#     if not email or not password:
+#         return Response({"detail": "Les champs 'email' et 'password' sont obligatoires."}, status=status.HTTP_400_BAD_REQUEST)
+
+#     user = authenticate(request, username=email, password=password)
+
+
+    # if user is not None:
+    #     return Response({
+    #         "message": "Utilisateur connecté avec succès.",
+    #         "user_id": user.id,
+    #         "token": user.token,
+    #         "admin": user.is_active
+    #     }, status=status.HTTP_200_OK)
+#     else:
+#         return Response({"detail": "Combinaison email/mot de passe incorrecte."}, status=status.HTTP_401_UNAUTHORIZED)
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_view(request):
@@ -488,17 +510,20 @@ def login_view(request):
     if not email or not password:
         return Response({"detail": "Les champs 'email' et 'password' sont obligatoires."}, status=status.HTTP_400_BAD_REQUEST)
 
-    user = authenticate(request, username=email, password=password)
-
-    if user is not None:
-        return Response({
+    try:
+        user = Account.objects.get(email=email, password=password)
+        if user is not None:
+            return Response({
             "message": "Utilisateur connecté avec succès.",
             "user_id": user.id,
             "token": user.token,
             "admin": user.is_active
         }, status=status.HTTP_200_OK)
-    else:
-        return Response({"detail": "Combinaison email/mot de passe incorrecte."}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        return Response({'message': "Utilisateur connecté avec succès."}, status=status.HTTP_200_OK)
+
+    except Account.DoesNotExist:
+        return Response({"detail": "Combinaison email/mot de passe incorrecte."}, status=status.HTTP_404_NOT_FOUND)
 
 
 # @login_required
