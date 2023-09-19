@@ -456,17 +456,16 @@ class GetAllEvents(generics.ListAPIView):
 class StripePayment(APIView):
     def post(self, request, event_id):
         event = get_object_or_404(Evenement, pk=event_id)
-        token = request.data.get('token')  # Token from the frontend
+        token = request.data.get('token')
         try:
-            # Create a charge using Stripe API
+
             charge = stripe.Charge.create(
-                amount=int(event.price_artist * 100),  # Convert to cents
+                amount=int(event.price_artist * 100),  
                 currency='usd',
                 source=token,
                 description='Payment for Event: {}'.format(event.name_artist),
             )
-            # Handle successful payment
-            # You can add logic here to mark the event as paid or update the reservation status
+
             return Response({'message': 'Payment successful'}, status=status.HTTP_200_OK)
         except stripe.error.StripeError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
