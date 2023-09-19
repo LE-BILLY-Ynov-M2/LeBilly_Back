@@ -12,16 +12,21 @@ class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
         fields = '__all__'
-
-class EventsSerializer(serializers.ModelSerializer):
+        
+class EvenementSerializer(serializers.ModelSerializer):
     class Meta:
-        model =  Events
+        model = Evenement
         fields = '__all__'
 
-class ReserveEventSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ReserveEvent
-        fields = ['account', 'event']
+# class EventsSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model =  Events
+#         fields = '__all__'
+
+# class ReserveEventSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = ReserveEvent
+#         fields = ['account', 'event']
 
 # class UserSerializer(serializers.ModelSerializer):
 #     _id = serializers.SerializerMethodField(read_only=True)

@@ -6,5 +6,6 @@ from .models import *
 admin.site.register(Account)
 admin.site.register(PasswordResetToken)
 admin.site.register(TemporaryAccount)
-admin.site.register(Events)
-admin.site.register(ReserveEvent)
+admin.site.register(Evenement)
+# admin.site.register(Events)
+# admin.site.register(ReserveEvent)

@@ -33,7 +33,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Account
-from .serializers import AccountSerializer,EventsSerializer
+from .serializers import AccountSerializer
 from rest_framework import serializers
 import random
 from rest_framework.views import APIView
@@ -42,6 +42,11 @@ import cloudinary.uploader
 from django.http import JsonResponse
 import cloudinary.api
 from cloudinary.api import resources
+from rest_framework import generics
+from django.shortcuts import get_object_or_404
+import stripe
+stripe.api_key = "sk_test_51LuypqEMbpaxmGP6WCG43ONNmFMRfyKuOxPihh9OU3UJVYc72zAyV0oU7KmQCcjclpdNemi6kbP9c7aNyeWgW5Hh00jCTh8xsV"
+
 #from home.models import Demande, BanqueImange, BanqueImangePhoto, BanqueRessource
 #from contacts.models import Contact
 
@@ -264,12 +269,12 @@ class AccountListView(APIView):
         serializer = AccountSerializer(accounts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-class EventsListView(APIView):
-    def get(self, request, *args, **kwargs):
-        events = Events.objects.all()
-        print("event",events)
-        serializer = EventsSerializer(events, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+# class EventsListView(APIView):
+#     def get(self, request, *args, **kwargs):
+#         events = Events.objects.all()
+#         print("event",events)
+#         serializer = EventsSerializer(events, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class GetUserView(APIView):
     def get(self, request, id):
@@ -385,14 +390,14 @@ class DeleteUserView(APIView):
             return Response({"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@api_view(['POST'])
-def reserve_event(request):
-    serializer = ReserveEventSerializer(data=request.data)
-    print("serializer",serializer)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# @api_view(['POST'])
+# def reserve_event(request):
+#     serializer = ReserveEventSerializer(data=request.data)
+#     print("serializer",serializer)
+#     if serializer.is_valid():
+#         serializer.save()
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)
+#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 def upload_photo_user(request):
     if request.method == "POST":
@@ -439,6 +444,32 @@ def get_images(request):
 
     return JsonResponse({'images': urls})
 
+
+class GetEventById(generics.RetrieveAPIView):
+    queryset = Evenement.objects.all()
+    serializer_class = EvenementSerializer
+
+class GetAllEvents(generics.ListAPIView):
+    queryset = Evenement.objects.all()
+    serializer_class = EvenementSerializer
+
+class StripePayment(APIView):
+    def post(self, request, event_id):
+        event = get_object_or_404(Evenement, pk=event_id)
+        token = request.data.get('token')  # Token from the frontend
+        try:
+            # Create a charge using Stripe API
+            charge = stripe.Charge.create(
+                amount=int(event.price_artist * 100),  # Convert to cents
+                currency='usd',
+                source=token,
+                description='Payment for Event: {}'.format(event.name_artist),
+            )
+            # Handle successful payment
+            # You can add logic here to mark the event as paid or update the reservation status
+            return Response({'message': 'Payment successful'}, status=status.HTTP_200_OK)
+        except stripe.error.StripeError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 # class AccountSerializer(serializers.ModelSerializer):
 #     class Meta:

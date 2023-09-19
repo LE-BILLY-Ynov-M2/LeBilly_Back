@@ -3,10 +3,10 @@ from . import views
 #from rest_framework_swagger.views import get_swagger_view
 from rest_framework.schemas import get_schema_view
 from .views import AccountListView
-from .views import EventsListView
+#from .views import EventsListView
 from .views import DeleteUserView
 from .views import GetUserView
-from .views import upload_photo_user, delete_photo_user,get_all_photos
+from .views import upload_photo_user, delete_photo_user,get_all_photos,GetEventById, GetAllEvents, StripePayment
 #schema_view = get_swagger_view(title='Pastebin API')
 
 urlpatterns = [
@@ -22,12 +22,15 @@ urlpatterns = [
     path('update-user-admin/', views.update_account, name='update_user_admin'),
     path('activate-account/<int:temp_account_id>/', views.activate_account, name='activate_account'),
     path('accounts/', AccountListView.as_view(), name='account-list'),
-    path('events/', EventsListView.as_view(), name='events-list'),    
+    #path('events/', EventsListView.as_view(), name='events-list'),    
     path('upload_photo/', upload_photo_user, name="upload_photo"),
     path('delete_photo/<str:user_id>/', delete_photo_user, name="delete_photo"),
     path('get_photos/', get_all_photos, name="get_photos"),
-    path('reserve_event/', views.reserve_event, name='reserve_event'),
-    path('images/', views.get_images, name='get_images'),
+    #path('reserve_event/', views.reserve_event, name='reserve_event'),
+    path('images/', views.get_images, name='get_images'),    
+    path('events/<int:pk>/', GetEventById.as_view(), name='get_event_by_id'),
+    path('events/', GetAllEvents.as_view(), name='get_all_events'),
+    path('events/<int:event_id>/payment/', StripePayment.as_view(), name='stripe_payment'),
     #path('update/', views.update_account, name='update_account'),
 
 ]

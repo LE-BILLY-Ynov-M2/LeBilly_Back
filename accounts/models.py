@@ -97,40 +97,57 @@ class TemporaryAccount(models.Model):
     def __str__(self):
         return self.username
 
-class Events(models.Model):
-    title=models.CharField(max_length=255)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    nbre_place= models.IntegerField( blank=True, default=0)
-    date=models.CharField( max_length=255)
-    designation=models.CharField(max_length=255, blank=True)
-    photo=models.ImageField( upload_to='photos/%Y/%m/%d/')
-    is_featured = models.BooleanField(default=False, null=True , blank=True)
-    last_model = models.BooleanField(default=False, null=True , blank=True)
-    created_date = models.DateField(auto_now_add=True)
-    attendees = models.ManyToManyField(Account, related_name="reserved_events", blank=True)
+# class Events(models.Model):
+#     title=models.CharField(max_length=255)
+#     price = models.DecimalField(max_digits=10, decimal_places=2)
+#     nbre_place= models.IntegerField( blank=True, default=0)
+#     date=models.CharField( max_length=255)
+#     designation=models.CharField(max_length=255, blank=True)
+#     photo=models.ImageField( upload_to='photos/%Y/%m/%d/')
+#     is_featured = models.BooleanField(default=False, null=True , blank=True)
+#     last_model = models.BooleanField(default=False, null=True , blank=True)
+#     created_date = models.DateField(auto_now_add=True)
+#     attendees = models.ManyToManyField(Account, related_name="reserved_events", blank=True)
     
-    def reserve_event(self, account):
-        comparison_date = datetime.strptime("2023-12-31", "%Y-%m-%d").date()
-        if self.nbre_place < 100 and datetime.strptime(self.date, "%Y-%m-%d").date() < comparison_date:
-            self.nbre_place += 1
-            self.attendees.add(account)
-            self.save()
-            return True
-        return False
+#     def reserve_event(self, account):
+#         comparison_date = datetime.strptime("2023-12-31", "%Y-%m-%d").date()
+#         if self.nbre_place < 100 and datetime.strptime(self.date, "%Y-%m-%d").date() < comparison_date:
+#             self.nbre_place += 1
+#             self.attendees.add(account)
+#             self.save()
+#             return True
+#         return False
 
-    def __str__(self):
-        return self.title
+#     def __str__(self):
+#         return self.title
     
-class ReserveEvent(models.Model):
-    account = models.ForeignKey(Account, on_delete=models.CASCADE)
-    event = models.ForeignKey(Events, on_delete=models.CASCADE)
-    reserved_on = models.DateTimeField(auto_now_add=True)
+# class ReserveEvent(models.Model):
+#     account = models.ForeignKey(Account, on_delete=models.CASCADE)
+#     event = models.ForeignKey(Events, on_delete=models.CASCADE)
+#     reserved_on = models.DateTimeField(auto_now_add=True)
 
-    def save(self, *args, **kwargs):
-        if not self.event.reserve_event(self.account):
-            raise ValidationError("Can't reserve this event.")
-        super(ReserveEvent, self).save(*args, **kwargs)
+#     def save(self, *args, **kwargs):
+#         if not self.event.reserve_event(self.account):
+#             raise ValidationError("Can't reserve this event.")
+#         super(ReserveEvent, self).save(*args, **kwargs)
 
-    def __str__(self):
-        return str(self.event) + " "+  str(self.account) + " "+ str(self.reserved_on)
+#     def __str__(self):
+#         return str(self.event) + " "+  str(self.account) + " "+ str(self.reserved_on)
         
+
+class Evenement(models.Model):
+    name_artist = models.CharField(max_length=255, verbose_name="Nom de l'artiste")
+    price_artist = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Prix de l'événement")
+    nbre_place_artist = models.IntegerField(blank=True, default=0, verbose_name="Nombre de places disponibles")
+    date_start = models.DateTimeField(verbose_name="Date et heure de début de l'événement")
+    date_end = models.DateTimeField(verbose_name="Date et heure de fin de l'événement")
+    designation_artist = models.CharField(max_length=255, blank=True, verbose_name="Description de l'artiste")
+    photo_artist = models.ImageField(upload_to='photos/%Y/%m/%d/', verbose_name="Photo de l'artiste")
+    is_featured_artist = models.BooleanField(default=False, null=True, blank=True, verbose_name="En vedette")
+    last_model_artist = models.BooleanField(default=False, null=True, blank=True, verbose_name="Dernier modèle")
+    created_date_artist = models.DateField(auto_now_add=True, verbose_name="Date de création")
+    url_youtube=models.CharField(max_length=255,verbose_name="URL Youtube")
+    attendees = models.ManyToManyField(Account, related_name="reserve", blank=True)
+
+    def __str__(self):
+        return self.name_artist
