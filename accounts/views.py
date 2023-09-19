@@ -41,7 +41,7 @@ from django.contrib.auth import authenticate
 import cloudinary.uploader
 from django.http import JsonResponse
 import cloudinary.api
-
+from cloudinary.api import resources
 #from home.models import Demande, BanqueImange, BanqueImangePhoto, BanqueRessource
 #from contacts.models import Contact
 
@@ -282,6 +282,72 @@ class GetUserView(APIView):
         except Exception as e:
             return Response({"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_admin_user(request):
+    
+    if not request.user.is_staff:
+        return Response({"detail": "Vous n'avez pas les autorisations nécessaires pour créer un administrateur."}, status=status.HTTP_403_FORBIDDEN)
+    data = request.data
+
+    user = User.objects.create_user(
+        username=data['username'],
+        password=data['password'],
+        is_staff=True,
+    )
+
+    account = Account.objects.create(
+        name=data['name'],
+        prenom=data['prenom'],
+        email=data['email'],
+        code_postal=data['code_postal'],
+        adresse=data['adresse'],
+        sexe=data['sexe'],
+        token=data['token'],
+        activation_token=data['activation_token'],
+        is_active=True,
+    )
+
+
+    serializer = AccountSerializer(account)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_admin_user(request, id):
+    if not request.user.is_staff:
+        return Response({"detail": "Vous n'avez pas les autorisations nécessaires pour modifier un administrateur."}, status=status.HTTP_403_FORBIDDEN)
+
+    try:
+        user = User.objects.get(id=id)
+
+        data = request.data
+
+        user.username = data['username']
+        user.set_password(data['password'])
+        user.save()
+
+        account = Account.objects.get(user=user)
+        account.name = data['name']
+        account.prenom = data['prenom']
+        account.email = data['email']
+        account.code_postal = data['code_postal']
+        account.adresse = data['adresse']
+        account.sexe = data['sexe']
+        account.token = data['token']
+        account.activation_token = data['activation_token']
+        account.is_active = data['is_active']
+        account.save()
+
+        serializer = AccountSerializer(account)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    except User.DoesNotExist:
+        return Response({"detail": "L'utilisateur administrateur spécifié n'existe pas."}, status=status.HTTP_404_NOT_FOUND)
+
+
 # def delete_user(request, user_id):
 #     try:
 #         # Rechercher l'utilisateur par son ID
@@ -356,7 +422,7 @@ def delete_photo_user(request, user_id):
 
 def get_all_photos(request):
     if request.method == "GET":
-        results = cloudinary.api.resources(type="upload", prefix="photos/")
+        results = cloudinary.api.resources(type="upload", prefix="Photos_LeBily/")
         return JsonResponse(results, safe=False)
     return JsonResponse({"error": "Invalid request"}, status=400)
 
@@ -368,7 +434,7 @@ def get_images(request):
         api_secret = settings.CLOUDINARY_STORAGE['API_SECRET']
     )
 
-    images_list = cloudinary.api.resources()
+    images_list = resources(prefix="Photos_LeBilly/", type="upload")
     urls = [image['url'] for image in images_list['resources']]
 
     return JsonResponse({'images': urls})

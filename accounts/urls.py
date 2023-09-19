@@ -18,6 +18,8 @@ urlpatterns = [
     path('delete/<int:id>/', DeleteUserView.as_view(), name='delete_user'),
     path('update/<int:id>/', views.update_account, name='update_account'),
     path('user/<int:id>/', GetUserView.as_view(), name='get_user'),
+    path('create-admin/<int:id>/', views.create_admin_user, name='create_admin_user'),
+    path('update-user-admin/', views.update_account, name='update_user_admin'),
     path('activate-account/<int:temp_account_id>/', views.activate_account, name='activate_account'),
     path('accounts/', AccountListView.as_view(), name='account-list'),
     path('events/', EventsListView.as_view(), name='events-list'),    
@@ -30,11 +32,4 @@ urlpatterns = [
 
 ]
 
-# rajoute l'option mot de passe oublié
-# from django.urls import path
-
-# urlpatterns = [
-#     path('password-reset-request/', password_reset_request, name='password_reset_request'),
-#     path('reset-password/<uuid:token>/', password_reset, name='password_reset'),
-# ]
 
