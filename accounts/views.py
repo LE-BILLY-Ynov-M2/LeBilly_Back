@@ -460,13 +460,18 @@ class StripePayment(APIView):
         event = get_object_or_404(Evenement, pk=event_id)
         token = request.headers['Authorization']
         try:
-            charge = stripe.Charge.create(
-                amount=int(float(request.data.get('price_artist'))) * 10,
+            stripe.api_key = 'Met la cle de ton api stp'
+            payment_intent = stripe.PaymentIntent.create(
+                amount=int(float(request.data.get('price_artist'))) * 100,  # Montant en cents
                 currency='usd',
-                source='tok_visa',
-                description='Payment for Event: {}'.format(request.data.get('name_artist')),
+                description='Payment POUR Event: {}'.format(request.data.get('name_artist')),
+                payment_method_types=['card'],
             )
-            print(charge)
+
+            context = {
+                'client_secret': payment_intent.client_secret,
+                'event_id': event_id,
+            }
             return redirect('http://localhost:3000/successPaiement')
         except stripe.error.StripeError as e:
             return redirect('http://localhost:3000/errorPaiement')
