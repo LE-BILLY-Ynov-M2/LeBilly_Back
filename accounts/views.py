@@ -174,7 +174,7 @@ def create_account(request):
             temp_account = TemporaryAccount(
                 username=serializer.validated_data["username"],
                 email=serializer.validated_data["email"],
-                #password=serializer.validated_data["password"],
+                password=serializer.validated_data["password"],
                 name=serializer.validated_data["name"],
                 prenom=serializer.validated_data["prenom"],
                 sexe=serializer.validated_data["sexe"],
@@ -183,8 +183,7 @@ def create_account(request):
                 activation_code=activation_code
             )
 
-            temp_account.set_password(serializer.validated_data["password"])
-
+            
             temp_account.save()
 
             activate_link = f"http://127.0.0.1:3000/verifCode?{temp_account.id}"
@@ -546,7 +545,7 @@ def password_reset(request, token):
         return Response({"detail": "Token invalide."}, status=status.HTTP_400_BAD_REQUEST)
 
     user = reset_token.user
-    user.set_password(new_password)
+    user.password = new_password
     user.save()
 
     reset_token.delete() 
