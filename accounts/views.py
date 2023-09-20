@@ -462,7 +462,6 @@ class StripePayment(APIView):
         try:
             stripe.api_key = 'sk_test_51LuypqEMbpaxmGP6WCG43ONNmFMRfyKuOxPihh9OU3UJVYc72zAyV0oU7KmQCcjclpdNemi6kbP9c7aNyeWgW5Hh00jCTh8xsV'
             
-            # Créez une session de paiement avec Stripe Checkout
             session = stripe.checkout.Session.create(
                 payment_method_types=['card'],
                 line_items=[
