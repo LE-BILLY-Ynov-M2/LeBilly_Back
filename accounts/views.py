@@ -530,7 +530,7 @@ def password_reset_request(request):
         return Response({"detail": "E-mail non trouvé."}, status=status.HTTP_404_NOT_FOUND)
 
     token = PasswordResetToken.objects.create(user=user)
-    reset_url = f"{request.scheme}://localhost:3000/accounts/reset-password/{token.token}/"
+    reset_url = f"{request.scheme}://localhost:3000/reset-password/{token.token}/"
 
     send_mail(
         'Réinitialisation du mot de passe',
