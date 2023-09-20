@@ -456,12 +456,9 @@ class GetAllEvents(generics.ListAPIView):
 
 
 class StripePayment(APIView):
-    def post(self, request, event_id):
-        event = get_object_or_404(Evenement, pk=event_id)
-        token = request.headers['Authorization']
+    def post(self, request):
         try:
-            stripe.api_key = 'sk_test_51LuypqEMbpaxmGP6WCG43ONNmFMRfyKuOxPihh9OU3UJVYc72zAyV0oU7KmQCcjclpdNemi6kbP9c7aNyeWgW5Hh00jCTh8xsV'
-            
+            stripe.api_key = 'sk_test_51KHlAcApycYj76sx6fysVoOPR551Ckuu8gRu8S4toPU6Rvu1wWEcjiyY6z71drC03GvtKGEB43pWfjVSm8aA36Lr009WbKxiT6'
             session = stripe.checkout.Session.create(
                 payment_method_types=['card'],
                 line_items=[
@@ -471,7 +468,7 @@ class StripePayment(APIView):
                             'product_data': {
                                 'name': 'Payment for Event',
                             },
-                            'unit_amount': int(float(request.data.get('price_artist'))) * 100,  # Montant en cents
+                            'unit_amount': 2 * 100,  # Montant en cents
                         },
                         'quantity': 1,
                     },
@@ -480,10 +477,16 @@ class StripePayment(APIView):
                 success_url='http://localhost:3000/successPaiement',
                 cancel_url='http://localhost:3000/errorPaiement',
             )
-
-            return redirect(session.url)
+            partir1 = {
+                'url' : session.url
+            }
+            print(session)
+            return JsonResponse(partir1, status=200)
         except stripe.error.StripeError as e:
             return Response({'error': str(e)}, status=500)
+        #     return redirect(session.url)
+        # except stripe.error.StripeError as e:
+        #     return Response({'error': str(e)}, status=500)
 
 
 # class AccountSerializer(serializers.ModelSerializer):
