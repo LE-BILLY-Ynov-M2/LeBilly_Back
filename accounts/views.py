@@ -458,7 +458,7 @@ class GetAllEvents(generics.ListAPIView):
 class StripePayment(APIView):
     def post(self, request, event_id):
         event = get_object_or_404(Evenement, pk=event_id)
-        token = request.headers['Authorization']
+        #token = request.headers['Authorization']
         try:
             stripe.api_key = 'sk_test_51LuypqEMbpaxmGP6WCG43ONNmFMRfyKuOxPihh9OU3UJVYc72zAyV0oU7KmQCcjclpdNemi6kbP9c7aNyeWgW5Hh00jCTh8xsV'
             
@@ -480,6 +480,7 @@ class StripePayment(APIView):
                 success_url='http://localhost:3000/successPaiement',
                 cancel_url='http://localhost:3000/errorPaiement',
             )
+            print('token',session)
 
             return redirect(session.url)
         except stripe.error.StripeError as e:

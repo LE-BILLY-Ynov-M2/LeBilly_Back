@@ -57,7 +57,8 @@ class Account(models.Model):
     password = models.CharField(max_length=128)
     is_active = models.BooleanField(default=False) 
     activation_token = models.UUIDField(default=uuid.uuid4, editable=False)
-    
+    events_user = models.ManyToManyField('Evenement', related_name='registered_users', blank=True)
+
     def set_password(self, raw_password):
         self.password = make_password(raw_password)
 
@@ -66,7 +67,7 @@ class Account(models.Model):
 
     def __str__(self):
         return self.username
-    
+
 class PasswordResetToken(models.Model):
     user = models.ForeignKey(Account, on_delete=models.CASCADE)
     token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
