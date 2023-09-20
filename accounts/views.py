@@ -174,7 +174,7 @@ def create_account(request):
             temp_account = TemporaryAccount(
                 username=serializer.validated_data["username"],
                 email=serializer.validated_data["email"],
-                password=serializer.validated_data["password"],
+                #password=serializer.validated_data["password"],
                 name=serializer.validated_data["name"],
                 prenom=serializer.validated_data["prenom"],
                 sexe=serializer.validated_data["sexe"],
@@ -182,6 +182,8 @@ def create_account(request):
                 adresse=serializer.validated_data["adresse"],
                 activation_code=activation_code
             )
+
+            temp_account.set_password(serializer.validated_data["password"])
 
             temp_account.save()
 
@@ -453,22 +455,25 @@ class GetAllEvents(generics.ListAPIView):
     queryset = Evenement.objects.all()
     serializer_class = EvenementSerializer
 
+
 class StripePayment(APIView):
     def post(self, request, event_id):
         event = get_object_or_404(Evenement, pk=event_id)
-        token = request.data.get('token')
+        token = request.headers['Authorization']
         try:
-
             charge = stripe.Charge.create(
-                amount=int(event.price_artist * 100),  
+                amount=int(float(request.data.get('price_artist'))) * 10,
                 currency='usd',
-                source=token,
-                description='Payment for Event: {}'.format(event.name_artist),
+                source='tok_visa',
+                description='Payment for Event: {}'.format(request.data.get('name_artist')),
             )
-
-            return Response({'message': 'Payment successful'}, status=status.HTTP_200_OK)
+            print(charge)
+            return redirect('http://localhost:3000/successPaiement')
         except stripe.error.StripeError as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return redirect('http://localhost:3000/errorPaiement')
+
+
+
 
 # class AccountSerializer(serializers.ModelSerializer):
 #     class Meta:
