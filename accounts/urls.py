@@ -30,8 +30,8 @@ urlpatterns = [
     path('images/', views.get_images, name='get_images'),    
     path('events/<int:pk>/', GetEventById.as_view(), name='get_event_by_id'),
     path('events/', GetAllEvents.as_view(), name='get_all_events'),
-    #path('events/<int:event_id>/payment/', StripePayment.as_view(), name='stripe_payment'),
-    path('events/payment/', StripePayment.as_view(), name='stripe_payment'),
+    path('events/<int:user_id>/<int:event_id>/payment/', StripePayment.as_view(), name='stripe_payment'),
+    #path('events/payment/', StripePayment.as_view(), name='stripe_payment'),
     #path('update/', views.update_account, name='update_account'),
 
 ]
