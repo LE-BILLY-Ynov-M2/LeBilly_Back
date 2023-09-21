@@ -461,15 +461,26 @@ class StripePayment(APIView):
         user = get_object_or_404(Account, pk=user_id)
         print('user',user)
         print("evenement",event)
-        # event_list = []
-        # for event in event:
-        #     event_list.append({
-        #         'id': event.id,
-        #         'name_artist': event.nbre_place_artist,
-        #         'attendees': event.attendees,
-        #     })
+        # user = Account.objects.get(user_id)
+        # serializer = AccountSerializer(user)
+        # print("serialisze data", serializer.data)
+        event_list = []
+        
+        events = [event] 
+        
+        for e in events:
+            event_list.append({
+                'id': e.id,
+                'nbre_place_artist': e.nbre_place_artist,
+                'name_artist': e.name_artist,
+                'date_start': e.date_start,
+                'date_end': e.date_end,
+                'price_artist' : e.price_artist
+            })
+        print("eventlist", int(float(e.price_artist) * 100))
+        
         try:
-            stripe.api_key = 'sk_test_51LuypqEMbpaxmGP6WCG43ONNmFMRfyKuOxPihh9OU3UJVYc72zAyV0oU7KmQCcjclpdNemi6kbP9c7aNyeWgW5Hh00jCTh8xsV'
+            stripe.api_key = 'sk_test_51KHlAcApycYj76sx6fysVoOPR551Ckuu8gRu8S4toPU6Rvu1wWEcjiyY6z71drC03GvtKGEB43pWfjVSm8aA36Lr009WbKxiT6'
             
             session = stripe.checkout.Session.create(
                 payment_method_types=['card'],
@@ -478,9 +489,9 @@ class StripePayment(APIView):
                         'price_data': {
                             'currency': 'usd',
                             'product_data': {
-                                'name': 'Payment for Event',
+                                'name': event,
                             },
-                            'unit_amount': int(float(request.data.get('price_artist'))) * 100,  # Montant en cents
+                            'unit_amount':  int(float(e.price_artist) * 100),  # Montant en cents
                         },
                         'quantity': 1,
                     },
@@ -492,7 +503,7 @@ class StripePayment(APIView):
 
             user.events_user.add(event)
             user.save()
-            return redirect(session.url)
+            return JsonResponse({'url': session.url})
         except stripe.error.StripeError as e:
             return Response({'error': str(e)}, status=500)
 
