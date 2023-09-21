@@ -186,7 +186,7 @@ def create_account(request):
             
             temp_account.save()
 
-            activate_link = f"http://127.0.0.1:3000/verifCode?{temp_account.id}"
+            activate_link = f"http://localhost:3000/verifCode?{temp_account.id}"
             send_mail(
                 'Activate your account',
                 f'Cliquer sur ce lien: {activate_link}. '
