@@ -460,7 +460,7 @@ class StripePayment(APIView):
         event = get_object_or_404(Evenement, pk=event_id)
         user = get_object_or_404(Account, pk=user_id)
         print('user',user)
-        print("event",event)
+        print("evenement",event)
         event_list = []
         for event in event:
             event_list.append({
