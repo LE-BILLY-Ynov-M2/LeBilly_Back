@@ -461,13 +461,13 @@ class StripePayment(APIView):
         user = get_object_or_404(Account, pk=user_id)
         print('user',user)
         print("evenement",event)
-        event_list = []
-        for event in event:
-            event_list.append({
-                'id': event.id,
-                'name_artist': event.nbre_place_artist,
-                'attendees': event.attendees,
-            })
+        # event_list = []
+        # for event in event:
+        #     event_list.append({
+        #         'id': event.id,
+        #         'name_artist': event.nbre_place_artist,
+        #         'attendees': event.attendees,
+        #     })
         try:
             stripe.api_key = 'sk_test_51LuypqEMbpaxmGP6WCG43ONNmFMRfyKuOxPihh9OU3UJVYc72zAyV0oU7KmQCcjclpdNemi6kbP9c7aNyeWgW5Hh00jCTh8xsV'
             
